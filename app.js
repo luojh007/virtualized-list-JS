@@ -11,35 +11,31 @@ const ITEM_BORDER = 2
 const ITEM_OFFSET_HEIGHT = (ITEM_HEIGHT + 2)
 const SCROLL_HEIGHT = list.length * ITEM_OFFSET_HEIGHT
 const VISIT_COUNT = Math.ceil(VIEW_HEIGHT / ITEM_OFFSET_HEIGHT)
-
-let startIndex = 0
-let endIndex = 0
 const dataLength = 100
 function render () {
     // 1. 创建 滚动区域
-    const tableDom = initDom()
+    initDom()
     // 2. 初始化 首屏数据，并渲染
-    const doms = initFirstDom()
-    doms.map(it => tableDom.appendChild(it))
-}
-
-
-function initFirstDom () {
-    endIndex = Math.ceil(VIEW_HEIGHT / (ITEM_HEIGHT + ITEM_BORDER)) - 1
-    const res = []
-    for (let i = startIndex; i <= endIndex; i++) {
-        res.push(createTableItemDom(i))
-    }
-    return res
+    mountDom()
 }
 
 /**
- * 滚动监听事件，更新dom
+ * 初次挂在试图
  */
-function updateDom () {
+
+function mountDom () {
+    let startIndex = 0
+    let endIndex = startIndex + VISIT_COUNT - 1
+    updateData(startIndex, endIndex)
+}
+
+/**
+ * 跟新视图
+ */
+function updateData (s, e) {
     const tableDom = document.getElementsByClassName('tableDom')[0]
     const F = document.createDocumentFragment()
-    for (let i = startIndex; i <= endIndex; i++) {
+    for (let i = s; i <= e; i++) {
         F.append(createTableItemDom(i))
     }
     tableDom.innerHTML = ''
@@ -47,16 +43,16 @@ function updateDom () {
 }
 
 /**
- * 删除节点
+ *  滚动事件
  */
-function scrollChange (n) {
+function scrollChange () {
     const tableDom = document.getElementsByClassName('tableDom')[0]
     const scrollTop = document.getElementsByClassName('viewDom')[0].scrollTop
     const h = ITEM_HEIGHT + ITEM_BORDER
-    startIndex = scrollTop / h | 0
-    endIndex = startIndex + VISIT_COUNT - 1
+    let startIndex = scrollTop / h | 0
+    let endIndex = startIndex + VISIT_COUNT - 1
 
-    updateDom()
+    updateData(startIndex, endIndex)
 
     tableDom.style.transform = `translateY(${startIndex * h}px)`
 }
